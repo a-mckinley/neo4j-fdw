@@ -1,9 +1,9 @@
 from multicorn.utils import log_to_postgres, ERROR, WARNING, DEBUG
-from neo4j import GraphDatabase, basic_auth, CypherError
+from neo4j import GraphDatabase, basic_auth, CypherError, __version__ as neo4jversion
 import json
 import ast
 
-MAJOR,MINOR,PATCH = neo4j.__version__.split('.')
+MAJOR,MINOR,PATCH = neo4jversion.split('.')
 MAJOR_MINOR = int(MAJOR + MINOR)
 
 """
