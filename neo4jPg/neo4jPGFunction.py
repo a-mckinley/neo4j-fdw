@@ -118,8 +118,7 @@ def path2json(path):
     jsonResult = "["
 
     if MAJOR_MINOR > 16:
-        for segment in path:
-            jsonResult += relation2json(segment)
+        jsonResult += ",".join([relation2json(segment) for segment in path])
     else:
         # This seems to be broken?
         if segment.start() is not None:
