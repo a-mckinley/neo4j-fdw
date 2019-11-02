@@ -29,14 +29,12 @@ def cypher(plpy, query, params, url, login, password):
                 if object.__class__.__name__ == "Node":
                     jsonResult += node2json(object)
 
-                if MAJOR_MINOR > 16:
-                    # In 1.6 series of neo4j python driver a change to way relationship types are
-                    # constructed which means ABCMeta is __class__ and the mro needs to be checked
-                    if any(c.__name__ == 'Relationship' for c in object.__class__.__mro__):
-                        jsonResult += relation2json(object)
-                else:
-                    if object.__class__.__name__ == "Relationship":
-                        jsonResult += relation2json(object)
+                # In 1.6 series of neo4j python driver a change to way relationship types are
+                # constructed which means ABCMeta is __class__ and the mro needs to be checked
+                elif MAJOR_MINOR > 16 and any(c.__name__ == 'Relationship' for c in object.__class__.__mro__):
+                    jsonResult += relation2json(object)
+                elif object.__class__.__name__ == "Relationship":
+                    jsonResult += relation2json(object)
 
                 elif object.__class__.__name__ == "Path":
                     jsonResult += path2json(object)
