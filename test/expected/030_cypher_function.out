@@ -31,3 +31,7 @@ Keanu Reeves|1964
 Laurence Fishburne|1961
 Hugo Weaving|1960
 (5 rows)
+select * from cypher('create (a {name : "test"}),(b {name : "thing"}),(c {name : "other"}) return *;');
+cypher
+{"a":{"id": 6,"labels": [],"properties": {"name": "test"}},"b":{"id": 7,"labels": [],"properties": {"name": "thing"}},"c":{"id": 8,"labels": [],"properties": {"name": "other"}}}
+(1 row)
