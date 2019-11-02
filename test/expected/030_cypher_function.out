@@ -31,7 +31,7 @@ Keanu Reeves|1964
 Laurence Fishburne|1961
 Hugo Weaving|1960
 (5 rows)
-select * from cypher('create (a {name : "test"}),(b {name : "thing"}),(c {name : "other"}) return *;');
-cypher
-{"a":{"id": 181,"labels": [],"properties": {"name": "test"}},"b":{"id": 182,"labels": [],"properties": {"name": "thing"}},"c":{"id": 183,"labels": [],"properties": {"name": "other"}}}
+select json_object_agg(key,value::jsonb-'id') as result from cypher('create (a {name : "test"}),(b {name : "thing"}),(c {name : "other"}) return *;') c, lateral json_each(c);
+result
+{ "a" : {"labels": [], "properties": {"name": "test"}}, "b" : {"labels": [], "properties": {"name": "thing"}}, "c" : {"labels": [], "properties": {"name": "other"}} }
 (1 row)
