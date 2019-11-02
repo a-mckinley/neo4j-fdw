@@ -90,7 +90,8 @@ def relation2json(rel):
     """
     jsonResult = "{"
     jsonResult += '"id": ' + json.dumps(rel._id) + ','
-    jsonResult += '"type": ' + json.dumps(rel._type) + ','
+    # In 1.6 series of neo4j python driver relationships have "type" attribute instead of "_type"
+    jsonResult += '"type": ' + json.dumps(getattr(rel,'_type',None) or getattr(rel,'type')) + ','
     jsonResult += '"properties": ' + json.dumps(rel._properties, default=set_default)
     jsonResult += "}"
 
