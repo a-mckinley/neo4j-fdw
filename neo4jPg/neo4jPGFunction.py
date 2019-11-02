@@ -3,6 +3,9 @@ from neo4j import GraphDatabase, basic_auth, CypherError
 import json
 import ast
 
+MAJOR,MINOR,PATCH = neo4j.__version__.split('.')
+MAJOR_MINOR = int(MAJOR + MINOR)
+
 """
 Neo4j Postgres function
 """
@@ -25,10 +28,16 @@ def cypher(plpy, query, params, url, login, password):
                 object = record[key]
                 if object.__class__.__name__ == "Node":
                     jsonResult += node2json(object)
-                # In 1.6 series of neo4j python driver a change to way relationship types are
-                # constructed which means ABCMeta is __class__ and the mro needs to be checked
-                elif any(c.__name__ == 'Relationship' for c in object.__class__.__mro__):
-                    jsonResult += relation2json(object)
+
+                if MAJOR_MINOR > 16:
+                    # In 1.6 series of neo4j python driver a change to way relationship types are
+                    # constructed which means ABCMeta is __class__ and the mro needs to be checked
+                    elif any(c.__name__ == 'Relationship' for c in object.__class__.__mro__):
+                        jsonResult += relation2json(object)
+                else:
+                    if object.__class__.__name__ == "Relationship":
+                        jsonResult += relation2json(object)
+
                 elif object.__class__.__name__ == "Path":
                     jsonResult += path2json(object)
                 else:
@@ -90,8 +99,15 @@ def relation2json(rel):
     """
     jsonResult = "{"
     jsonResult += '"id": ' + json.dumps(rel._id) + ','
-    # In 1.6 series of neo4j python driver relationships have "type" attribute instead of "_type"
-    jsonResult += '"type": ' + json.dumps(getattr(rel,'_type',None) or getattr(rel,'type')) + ','
+
+    if MAJOR_MINOR > 16:
+        # In 1.6 series of neo4j python driver relationships have "type" attribute instead of "_type"
+        jsonResult += '"type": ' + json.dumps(rel.type) + ','
+        # In 1.6 series of neo4j python driver relationships contain their nodes
+        jsonResult += '"nodes": [' + node2json(rel.nodes[0]) + ',' + node2json(rel.nodes[1]) + '],'
+    else:
+        jsonResult += '"type": ' + json.dumps(rel._type) + ','
+
     jsonResult += '"properties": ' + json.dumps(rel._properties, default=set_default)
     jsonResult += "}"
 
@@ -102,12 +118,18 @@ def path2json(path):
         Convert a path to json
     """
     jsonResult = "["
-    if segment.start() is not None:
-        jsonResult += node2json(segment.start())
 
-    for segment in path:
-        jsonResult += "," + relation2json( segment.relationship() )
-        jsonResult += "," + node2json( segment.end() )
+    if MAJOR_MINOR > 16:
+        for segment in path:
+            jsonResult += relation2json(segment)
+    else:
+        # This seems to be broken?
+        if segment.start() is not None:
+            jsonResult += node2json(segment.start())
+
+        for segment in path:
+            jsonResult += "," + relation2json( segment.relationship() )
+            jsonResult += "," + node2json( segment.end() )
 
     jsonResult += "]"
 
