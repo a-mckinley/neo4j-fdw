@@ -35,8 +35,7 @@ select json_object_agg(key,value::jsonb-'id') as result from cypher('create (a:A
 result
 { "a" : {"labels": ["A"], "properties": {"name": "test"}}, "b" : {"labels": ["B"], "properties": {"name": "thing"}}, "c" : {"labels": ["B"], "properties": {"name": "other"}} }
 (1 row)
-select c->'r'->>'type' as rel_type,c->'r'->>'properties' as rel_properties,json_array_length(json_agg(n)) as node_count from cypher('match(a),(b) where a.name = "test" and b.name = "thing" CREATE (a)-[r
-:RELTYPE {name : "test-thing"}]->(b) return r;') c, lateral json_array_elements(c->'r'->'nodes') n group by 1,2;
+select c->'r'->>'type' as rel_type,c->'r'->>'properties' as rel_properties,json_array_length(json_agg(n)) as node_count from cypher('match(a),(b) where a.name = "test" and b.name = "thing" CREATE (a)-[r:RELTYPE {name : "test-thing"}]->(b) return r;') c, lateral json_array_elements(c->'r'->'nodes') n group by 1,2;
 rel_type|rel_properties|node_count
 RELTYPE|{"name": "test-thing"}|2
 (1 row)
