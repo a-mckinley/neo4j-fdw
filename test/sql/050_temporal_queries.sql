@@ -1,5 +1,5 @@
 \a
-SET intervalstyle='postgres_verbose';
+SET IntervalStyle to postgres_verbose;
 /* Date comparisons */
 SELECT * FROM temporal WHERE temporal.my_date > (DATE '1983-03-26');
 SELECT * FROM temporal WHERE temporal.my_date < (DATE '1983-03-26');
