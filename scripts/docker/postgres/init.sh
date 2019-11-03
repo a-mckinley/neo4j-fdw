@@ -14,3 +14,6 @@ make && make install
 echo "~~~~~~~~~~~~~ Installing Neo4j FDW"
 cd /neo4j-fdw/source/
 make install
+
+echo "~~~~~~~~~~~~~ Setting default interval style"
+psql -c "alter database test SET intervalstyle = 'postgres_verbose';"
