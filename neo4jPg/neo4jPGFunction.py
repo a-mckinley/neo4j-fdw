@@ -4,7 +4,6 @@ import json
 import ast
 
 MAJOR,MINOR,PATCH = neo4jversion.split('.')
-MAJOR_MINOR = int(MAJOR + MINOR)
 
 """
 Neo4j Postgres function
@@ -31,7 +30,7 @@ def cypher(plpy, query, params, url, login, password):
 
                 # In 1.6 series of neo4j python driver a change to way relationship types are
                 # constructed which means ABCMeta is __class__ and the mro needs to be checked
-                elif MAJOR_MINOR > 16 and any(c.__name__ == 'Relationship' for c in object.__class__.__mro__):
+                elif (MAJOR >= 1 and MINOR > 16) and any(c.__name__ == 'Relationship' for c in object.__class__.__mro__):
                     jsonResult += relation2json(object)
                 elif object.__class__.__name__ == "Relationship":
                     jsonResult += relation2json(object)
@@ -98,7 +97,7 @@ def relation2json(rel):
     jsonResult = "{"
     jsonResult += '"id": ' + json.dumps(rel._id) + ','
 
-    if MAJOR_MINOR > 16:
+    if (MAJOR >= 1 and MINOR > 16):
         # In 1.6 series of neo4j python driver relationships have "type" attribute instead of "_type"
         jsonResult += '"type": ' + json.dumps(rel.type) + ','
         # In 1.6 series of neo4j python driver relationships contain their nodes
@@ -117,7 +116,7 @@ def path2json(path):
     """
     jsonResult = "["
 
-    if MAJOR_MINOR > 16:
+    if (MAJOR >= 1 and MINOR > 16):
         jsonResult += ",".join([relation2json(segment) for segment in path])
     else:
         # This seems to be broken?
