@@ -16,4 +16,5 @@ cd /neo4j-fdw/source/
 make install
 
 echo "~~~~~~~~~~~~~ Setting default interval style"
+set +x
 psql -v ON_ERROR_STOP=1 -U $POSTGRES_USER -d $POSTGRES_DB  -c "alter database test SET intervalstyle = 'postgres_verbose';"
